@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <h1>Successfully!!!</h1>
+  <h1 class="bg-green-500 text-white">Successfully!!!</h1>
 </template>
 
 <style>
