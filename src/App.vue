@@ -24,8 +24,17 @@ import { RouterLink, RouterView } from 'vue-router'
                 Productos
               </a>
               <ul class="dropdown-menu">
-                <li><RouterLink class='dropdown-item' to="/">Lista</RouterLink></li>
-                <li><RouterLink class='dropdown-item' to="/new">Nuevo</RouterLink></li>
+                <li><RouterLink class='dropdown-item' to="/products">Lista</RouterLink></li>
+                <li><RouterLink class='dropdown-item' to="/product/new">Nuevo</RouterLink></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Categorias
+              </a>
+              <ul class="dropdown-menu">
+                <li><RouterLink class='dropdown-item' to="/categories">Lista</RouterLink></li>
+                <li><RouterLink class='dropdown-item' to="/category/new">Nueva</RouterLink></li>
               </ul>
             </li>
           </ul>

@@ -5,6 +5,7 @@
                 <th>Id</th>
                 <th>Foto</th>
                 <th>Nombre</th>
+                <th>Categoría</th>
                 <th>Descripción</th>
                 <th>Precio</th>
             </tr>
@@ -17,12 +18,13 @@
                     <img :style="{ height: '50px', width: 'auto' }" v-else src="../assets/sin-imagen.jpg" id="fotoimg" class="img-thumbnail" alt="...">
                 </td>
                 <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
+                <td>{{  product.category.name  }}</td>
+                <td :style="{ maxWidth: '200px' }" class="text-truncate" >{{ product.description }}</td>
                 <td>{{ product.price }}</td>
                 <td>
-                    <RouterLink :to="{path:'view/'+product.id}" class="btn btn-info"><font-awesome-icon icon="fa-regular fa-eye" class="fa-sm" /></RouterLink>
+                    <RouterLink :to="{path:'/product/view/'+product.id}" class="btn btn-info"><font-awesome-icon icon="fa-regular fa-eye" class="fa-sm" /></RouterLink>
                     &nbsp
-                    <RouterLink :to="{path:'edit/'+product.id}" class="btn btn-warning"><font-awesome-icon icon="fa-solid fa-pen-to-square" class="fa-sm" /></RouterLink>
+                    <RouterLink :to="{path:'/product/edit/'+product.id}" class="btn btn-warning"><font-awesome-icon icon="fa-solid fa-pen-to-square" class="fa-sm" /></RouterLink>
                     &nbsp
                     <button class="btn btn-danger" @click="deleteProduct(product.id)" ><font-awesome-icon icon="fa-solid fa-trash-can" class="fa-sm" /></button>
                 </td>
