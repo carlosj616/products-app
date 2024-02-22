@@ -11,7 +11,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(product, index) in products" :key="index">
+            <tr v-for="(product, index) in products" :key="index" :class="{ 'table-info': isInDateRange(product.fecha_inicio, product.fecha_fin) }">
                 <td>{{ product.id }}</td>
                 <td>
                     <img :style="{ height: '50px', width: 'auto' }" v-if="product.foto" :src="product.foto" id="fotoimg" class="img-thumbnail" alt="...">
@@ -93,6 +93,16 @@ export default {
                     });
                 }
             });
+        },
+        isInDateRange(startDate, endDate) {
+            // Función para verificar si la fecha actual está dentro del rango de fechas
+            const currentDate = new Date();
+            startDate = new Date(startDate);
+            endDate = new Date(endDate);
+            console.log('startDate:', startDate);
+            console.log('endDate:', endDate);
+            console.log('currentDate:', currentDate);
+            return currentDate >= startDate && currentDate <= endDate;
         }
     },
     components: { RouterLink }

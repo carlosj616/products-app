@@ -5,35 +5,61 @@
                 Detalles Del Producto
             </div>
             <div class="card-body">
-                    <img :style="{ height: '200px', width: 'auto' }" v-if="this.foto" :src="this.foto" id="fotoimg"
-                        class="img-thumbnail" alt="...">
-                    <img :style="{ height: '200px', width: 'auto' }" v-else src="../assets/sin-imagen.jpg" id="fotoimg"
-                        class="img-thumbnail" alt="...">
-
-                    <div class="mb-3">
-                        <input @change="previsualizarFoto" type="file" accept="image/png, image/jpeg" class="form-control">
+                <div class="row g-3 mb-3">
+                    <div class="col-auto">
+                        <img :style="{ height: '150px', width: 'auto' }" v-if="this.foto" :src="this.foto" id="fotoimg"
+                            class="img-thumbnail" alt="...">
+                        <img :style="{ height: '150px', width: 'auto' }" v-else src="../assets/sin-imagen.jpg" id="fotoimg"
+                            class="img-thumbnail" alt="...">
                     </div>
-                    <div class="input-group mb-3">
-                        <label for="inputName" class="input-group-text">Nombre: </label>
-                        <input type="text" v-model="name" class="form-control" id="name">
-                        <div class="input-group-append" style="margin-left: 100px;"></div>
-                        <label for="inputCategory" class="input-group-text">Categoria: </label>
-                        <input type="text" v-model="category" class="form-control" id="name">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <label for="inputName" class="input-group-text">Nombre: </label>
+                            <input type="text" v-model="name" class="form-control" id="name" disabled>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" v-model="description" class="form-control" id="description">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <label for="inputCategory" class="input-group-text">Categoria: </label>
+                            <input type="text" v-model="category" class="form-control" id="name" disabled>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="text" v-model="price" class="form-control" id="price">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="description" class="form-label">Descripcion:</label>
+                        <input type="text" v-model="description" class="form-control" id="description" disabled>
                     </div>
+                    <div class="col-sm">
+                        <label for="inputFechaInicio" class="form-label">Disponible desde:</label>
+                        <input type="datetime-local" id="fecha-inicio" v-model="fechaInicio" class="form-control" disabled>
+                    </div>
+                    <div class="col-sm">
+                        <label for="inputFechaFin" class="form-label">Hasta:</label>
+                        <input type="datetime-local" id="fecha-fin" v-model="fechaFin" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <span v-for="(tag, index) in tags" :key="index" class="badge bg-secondary fs-6 me-1">{{ tag }}</span>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="text" v-model="price" class="form-control" id="price" disabled>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import Swal from 'sweetalert2';
 import { useRoute } from 'vue-router';
 
 export default {
@@ -44,6 +70,9 @@ export default {
             category: '',
             description: '',
             price: '',
+            tags: [],
+            fechaInicio: null,
+            fechaFin: null,
             url: 'http://127.0.0.1:8000/api/products'
         }
     },
@@ -51,11 +80,11 @@ export default {
         const route = useRoute();
         this.id = route.params.id;
         this.url += '/' + this.id;
-        this.getEstudiante();
+        this.getProduct();
 
     },
     methods: {
-        getEstudiante() {
+        getProduct() {
             fetch(this.url)
                 .then(response => {
                     if (response.ok)
@@ -68,6 +97,9 @@ export default {
                     this.category = data.product.category.name;
                     this.description = data.product.description;
                     this.price = data.product.price;
+                    this.tags = data.product.tags ? data.product.tags.split(',') : [];
+                    this.fechaInicio = data.product.fecha_inicio;
+                    this.fechaFin = data.product.fecha_fin;
                     console.log(data);
                 })
                 .catch(err => {
