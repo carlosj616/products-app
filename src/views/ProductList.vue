@@ -30,6 +30,18 @@
                 <button class="btn btn-light" @click="resetFilters"><font-awesome-icon
                         :icon="['fas', 'filter-circle-xmark']" class="fa-lg" /></button>
             </div>
+            <div class="col-sm-1">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Download
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" @click.prevent="generarReportePDF">PDF</a></li>
+                        <li><a class="dropdown-item" href="#">Excel</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <table class="table table-hover table-bordered">
             <thead>
@@ -40,6 +52,7 @@
                     <th>Categoría</th>
                     <th>Descripción</th>
                     <th>Precio</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -130,7 +143,7 @@ export default {
             if (this.searchQuery) {
                 url += `?search=${encodeURIComponent(this.searchQuery)}`;
             }
-            
+
             if (this.startDate || this.endDate) {
                 this.v$.$validate();
 
@@ -210,6 +223,48 @@ export default {
             this.v$.$reset();
             this.getProducts();
         },
+        generarReportePDF() {
+            if (this.products.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No hay productos para generar el reporte.',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            fetch('http://127.0.0.1:8000/api/products/reporte-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.products)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al generar el reporte');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
+                    const filename = `products_${timestamp}.pdf`;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Error al generar el reporte:', error);
+                });
+        }
     },
     components: { RouterLink }
 }
