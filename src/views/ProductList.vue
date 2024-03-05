@@ -38,7 +38,7 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#" @click.prevent="generarReportePDF">PDF</a></li>
-                        <li><a class="dropdown-item" href="#">Excel</a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="generarReporteExcel">Excel</a></li>
                     </ul>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(product, index) in products" :key="index"
+                <tr v-for="(product, index) in products.data" :key="index"
                     :class="{ 'table-info': isInDateRange(product.fecha_inicio, product.fecha_fin) }">
                     <td>{{ product.id }}</td>
                     <td>
@@ -82,6 +82,42 @@
                 </tr>
             </tbody>
         </table>
+        <div class="row">
+            <div class="col-10">
+                <nav>
+                    <ul class="pagination pagination justify-content-end">
+                        <li class="page-item" :class="{ 'disabled': !products.prev_page_url }">
+                            <a class="page-link" href="#" aria-label="Previous"
+                                @click.prevent="fetchProducts(products.prev_page_url)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" v-for="page in products.last_page" :key="page"
+                            :class="{ 'active': page === products.current_page }">
+                            <a class="page-link" href="#">{{ page
+                            }}</a>
+                        </li>
+                        <li class="page-item" :class="{ 'disabled': !products.next_page_url }">
+                            <a class="page-link" href="#" aria-label="Next"
+                                @click.prevent="fetchProducts(products.next_page_url)">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-2">
+                <div class="input-group">
+                    <label for="per_page" class="input-group-text">Filas por página: </label>
+                    <select class="form-select form-select-sm" v-model="products.per_page" @change="debouncedSearch">
+                        <option value="3">3</option>
+                        <option value="7">7</option>
+                        <option value="12">12</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -101,11 +137,20 @@ export default {
             searchQuery: '',
             startDate: null,
             endDate: null,
-            products: []
+            products: {
+                data: [],
+                current_page: 1,
+                last_page: 1,
+                next_page_url: null,
+                prev_page_url: null,
+                path: '',
+                per_page: 3,
+            }
         };
     },
     mounted() {
-        this.getProducts();
+        this.fetchProducts('http://127.0.0.1:8000/api/products');
+        console.log(this.products)
     },
     validations() {
         return {
@@ -123,8 +168,8 @@ export default {
         }
     },
     methods: {
-        getProducts() {
-            fetch("http://127.0.0.1:8000/api/products")
+        getProducts(url = 'http://127.0.0.1:8000/api/products') {
+            fetch(url)
                 .then(response => {
                     if (response.ok)
                         return response.json();
@@ -141,10 +186,10 @@ export default {
             let url = `http://127.0.0.1:8000/api/products`;
 
             if (this.searchQuery) {
-                url += `?search=${encodeURIComponent(this.searchQuery)}`;
+                url += `?search=${encodeURIComponent(this.searchQuery)}&per_page=${this.products.per_page}`;
             }
 
-            if (this.startDate || this.endDate) {
+            if (this.startDate || this.endDate) { // Pendiente de probar el && en la condicion!!!.
                 this.v$.$validate();
 
                 if (!this.v$.startDate.$invalid && !this.v$.endDate.$invalid) {
@@ -152,9 +197,9 @@ export default {
                     const endDateParam = encodeURIComponent(this.endDate);
 
                     if (url.includes('?')) {
-                        url += `&startDate=${startDateParam}&endDate=${endDateParam}`;
+                        url += `&startDate=${startDateParam}&endDate=${endDateParam}&per_page=${this.products.per_page}`;
                     } else {
-                        url += `?startDate=${startDateParam}&endDate=${endDateParam}`;
+                        url += `?startDate=${startDateParam}&endDate=${endDateParam}&per_page=${this.products.per_page}`;
                     }
                 }
             }
@@ -197,6 +242,11 @@ export default {
         },
         fetchProducts(url) {
             console.log(url);
+            if (url.includes('?')) {
+                url += `&per_page=${this.products.per_page}`;
+            } else {
+                url += `?per_page=${this.products.per_page}`;
+            }
             fetch(url)
                 .then(response => {
                     if (response.ok)
@@ -205,6 +255,7 @@ export default {
                 })
                 .then(data => {
                     this.products = data;
+                    console.log(this.products)
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -224,7 +275,7 @@ export default {
             this.getProducts();
         },
         generarReportePDF() {
-            if (this.products.length === 0) {
+            if (this.products.data.length === 0) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'No hay productos para generar el reporte.',
@@ -242,7 +293,7 @@ export default {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(this.products)
+                body: JSON.stringify(this.products.data)
             })
                 .then(response => {
                     if (!response.ok) {
@@ -253,6 +304,49 @@ export default {
                 .then(blob => {
                     const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
                     const filename = `products_${timestamp}.pdf`;
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Error al generar el reporte:', error);
+                });
+        },
+        generarReporteExcel() {
+            if (this.products.data.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No hay productos para generar el reporte.',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            fetch('http://127.0.0.1:8000/api/products/reporte-excel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.products.data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al generar el reporte');
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
+                    const filename = `products_${timestamp}.xlsx`;
+                    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
