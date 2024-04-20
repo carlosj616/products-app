@@ -73,7 +73,7 @@ export default {
             tags: [],
             fechaInicio: null,
             fechaFin: null,
-            url: 'http://127.0.0.1:8000/api/products'
+            url: import.meta.env.VITE_API_URL + '/api/products'
         }
     },
     mounted() {

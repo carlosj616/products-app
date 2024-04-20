@@ -116,7 +116,7 @@ export default {
             tags: [],
             fechaInicio: null,
             fechaFin: null,
-            url: 'http://127.0.0.1:8000/api/products'
+            url: import.meta.env.VITE_API_URL + '/api/products'
         }
     },
     mounted() {
@@ -235,7 +235,7 @@ export default {
             }
         },
         getCategories() {
-            fetch('http://127.0.0.1:8000/api/categories')
+            fetch(import.meta.env.VITE_API_URL + '/api/categories')
                 .then(response => response.json())
                 .then(data => {
                     this.categories = data;

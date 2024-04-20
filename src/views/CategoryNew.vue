@@ -71,7 +71,7 @@ export default {
                 description: this.description
             };
 
-            const url = 'http://127.0.0.1:8000/api/categories';
+            const url = import.meta.env.VITE_API_URL + '/api/categories';
 
             fetch(url, {
                 method: 'POST',

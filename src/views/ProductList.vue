@@ -149,7 +149,7 @@ export default {
         };
     },
     mounted() {
-        this.fetchProducts('http://127.0.0.1:8000/api/products');
+        this.fetchProducts(import.meta.env.VITE_API_URL + '/api/products');
         console.log(this.products)
     },
     validations() {
@@ -168,7 +168,7 @@ export default {
         }
     },
     methods: {
-        getProducts(url = 'http://127.0.0.1:8000/api/products') {
+        getProducts(url = import.meta.env.VITE_API_URL + '/api/products') {
             fetch(url)
                 .then(response => {
                     if (response.ok)
@@ -183,7 +183,7 @@ export default {
                 });
         },
         debouncedSearch: debounce(function () {
-            let url = `http://127.0.0.1:8000/api/products`;
+            let url = `${import.meta.env.VITE_API_URL}/api/products`;
 
             if (this.searchQuery) {
                 url += `?search=${encodeURIComponent(this.searchQuery)}&per_page=${this.products.per_page}`;
@@ -218,7 +218,7 @@ export default {
                 confirmButtonText: 'Sí, eliminarlo!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = `http://127.0.0.1:8000/api/products/${id}`;
+                    const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`;
                     fetch(url, {
                         method: 'DELETE',
                         headers: {
@@ -288,7 +288,7 @@ export default {
                 return;
             }
 
-            fetch('http://127.0.0.1:8000/api/products/reporte-pdf', {
+            fetch(import.meta.env.VITE_API_URL + '/api/products/reporte-pdf', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -330,7 +330,7 @@ export default {
                 return;
             }
 
-            fetch('http://127.0.0.1:8000/api/products/reporte-excel', {
+            fetch(import.meta.env.VITE_API_URL + '/api/products/reporte-excel', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

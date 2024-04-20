@@ -35,7 +35,7 @@ export default {
     },
     methods: {
         getCategories() {
-            fetch("http://127.0.0.1:8000/api/categories")
+            fetch(import.meta.env.VITE_API_URL + "/api/categories")
                 .then(response => {
                 if (response.ok)
                     return response.json();
@@ -59,7 +59,7 @@ export default {
                 confirmButtonText: 'Sí, eliminarla!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const url = `http://127.0.0.1:8000/api/categories/${id}`;
+                    const url = `${import.meta.env.VITE_API_URL}/api/categories/${id}`;
                     fetch(url, {
                         method: 'DELETE',
                         headers: {

@@ -166,7 +166,7 @@ export default {
                 fechaFin: this.fechaFin
             };
 
-            const url = 'http://127.0.0.1:8000/api/products';
+            const url = import.meta.env.VITE_API_URL + '/api/products';
 
             fetch(url, {
                 method: 'POST',
@@ -207,7 +207,7 @@ export default {
             }
         },
         getCategories() {
-            fetch('http://127.0.0.1:8000/api/categories')
+            fetch(import.meta.env.VITE_API_URL + '/api/categories')
                 .then(response => response.json())
                 .then(data => {
                     this.categories = data;
